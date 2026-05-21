@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão Financeira</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;
+  --bg2:#181c27;
+  --bg3:#1e2333;
+  --bg4:#252b3b;
+  --border:#2e3548;
+  --text:#e8ecf4;
+  --text2:#8b95aa;
+  --text3:#5a6478;
+  --green:#22c55e;
+  --green-bg:#0d2e1a;
+  --green-border:#164d2a;
+  --red:#f87171;
+  --red-bg:#2d1010;
+  --blue:#60a5fa;
+  --blue-bg:#0d1e3a;
+  --purple:#a78bfa;
+  --purple-bg:#1e1040;
+  --amber:#fbbf24;
+  --amber-bg:#2d1f00;
+  --radius:10px;
+  --radius-lg:14px;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+
+/* Layout */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.main{margin-left:220px;flex:1;padding:2rem;max-width:1100px}
+
+/* Sidebar */
+.logo{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+.logo-mark{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.5px}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.nav{padding:1rem 0.75rem;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg4);color:var(--text)}
+.nav-item .icon{width:18px;height:18px;opacity:.7}
+.nav-item.active .icon{opacity:1}
+.nav-dot{width:6px;height:6px;border-radius:50%;margin-left:auto;display:none}
+.nav-item.active .nav-dot{display:block;background:var(--green)}
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border)}
+.sidebar-kpi{font-size:11px;color:var(--text3);margin-bottom:4px}
+.sidebar-val{font-size:16px;font-weight:600;color:var(--green)}
+
+/* Pages */
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:1.75rem}
+.page-title{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.5px}
+.page-sub{font-size:13px;color:var(--text3);margin-top:4px}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.green::before{background:var(--green)}
+.kpi.red::before{background:var(--red)}
+.kpi.blue::before{background:var(--blue)}
+.kpi.purple::before{background:var(--purple)}
+.kpi.amber::before{background:var(--amber)}
+.kpi-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-value{font-size:20px;font-weight:600;font-family:'DM Mono',monospace}
+.kpi.green .kpi-value{color:var(--green)}
+.kpi.red .kpi-value{color:var(--red)}
+.kpi.blue .kpi-value{color:var(--blue)}
+.kpi.purple .kpi-value{color:var(--purple)}
+.kpi.amber .kpi-value{color:var(--amber)}
+
+/* Forms */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;color:var(--text2);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13.5px;padding:9px 12px;font-family:'DM Sans',sans-serif;transition:border .15s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:#3d4f72}
+.form-group select option{background:var(--bg3)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--blue);color:#0d1e3a}
+.btn-primary:hover{background:#93c5fd}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #4a1515}
+.btn-danger:hover{background:#3d1010}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);font-size:13.5px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.td-main{font-weight:500}
+.td-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-yellow{background:var(--amber-bg);color:var(--amber);border:1px solid #4d3300}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid #4a1515}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #1a3a6a}
+
+/* Charts */
+.bar-row{margin-bottom:12px}
+.bar-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.bar-label{color:var(--text2)}
+.bar-val{color:var(--text3);font-family:'DM Mono',monospace}
+.bar-track{background:var(--bg4);border-radius:4px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* Config tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12.5px;color:var(--text2)}
+.tag-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;line-height:1;padding:0;display:flex;align-items:center}
+.tag-del:hover{color:var(--red)}
+
+/* Empty state */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:13.5px}
+.empty svg{margin-bottom:12px;opacity:.3}
+
+/* Novo cliente highlight */
+.novo-sim{color:var(--green);font-weight:600}
+.novo-nao{color:var(--text3)}
+
+/* Danger zone */
+.danger-zone{border-color:#4a1515}
+
+/* Novos clientes list */
+.cliente-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.cliente-name{font-weight:500;font-size:13.5px}
+.cliente-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.cliente-val{font-family:'DM Mono',monospace;color:var(--green);font-size:13px;font-weight:500}
+
+/* Responsive */
+@media(max-width:700px){
+  .sidebar{width:100%;height:auto;position:sticky;top:0;flex-direction:row;border-right:none;border-bottom:1px solid var(--border)}
+  .main{margin-left:0;padding:1rem}
+  .logo,.sidebar-footer{display:none}
+  .nav{display:flex;padding:.5rem;flex-direction:row;gap:4px}
+  .nav-item{flex-direction:column;gap:2px;font-size:10px;padding:6px;min-width:60px;justify-content:center}
+  .nav-dot{display:none!important}
+  .form-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">Gestão Fin.</div>
+      <div class="logo-sub">Controle financeiro</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" onclick="go('dashboard')" id="btn-dashboard">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item" onclick="go('lancamentos')" id="btn-lancamentos">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Lançamentos
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item" onclick="go('entradas')" id="btn-entradas">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Entradas
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item" onclick="go('config')" id="btn-config">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Config
+        <span class="nav-dot"></span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-kpi">Saldo do período</div>
+      <div class="sidebar-val" id="sidebar-saldo">R$ 0,00</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Resumo financeiro atualizado em tempo real</div>
+      </div>
+      <div class="kpi-grid" id="kpis"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="card">
+          <div class="card-title">Gastos por categoria</div>
+          <div id="cat-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Forma de pagamento</div>
+          <div id="pgto-chart"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title">Novos clientes</div>
+        <div id="novos-clientes"></div>
+      </div>
+    </div>
+
+    <!-- LANÇAMENTOS -->
+    <div class="page" id="page-lancamentos">
+      <div class="page-header">
+        <div class="page-title">Lançamentos</div>
+        <div class="page-sub">Registre os gastos da empresa</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Novo lançamento</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Data</label><input type="date" id="l-data"></div>
+          <div class="form-group"><label>Descrição</label><input type="text" id="l-desc" placeholder="Ex: Almoço equipe"></div>
+          <div class="form-group"><label>Categoria</label><select id="l-cat"></select></div>
+          <div class="form-group"><label>Fornecedor / Pessoa</label><input type="text" id="l-forn" placeholder="Nome do fornecedor"></div>
+          <div class="form-group"><label>Valor (R$)</label><input type="number" id="l-valor" placeholder="0.00" step="0.01" min="0"></div>
+          <div class="form-group"><label>Forma de pagamento</label>
+            <select id="l-pgto"><option>Pix</option><option>Cartão Crédito</option><option>Cartão Débito</option><option>Dinheiro</option><option>Transferência</option><option>Boleto</option></select>
+          </div>
+          <div class="form-group"><label>Status</label>
+            <select id="l-status"><option>Pago</option><option>Pendente</option><option>Cancelado</option><option>Parcelado</option></select>
+          </div>
+          <div class="form-group"><label>Nota Fiscal?</label>
+            <select id="l-nf"><option>Sim</option><option>Não</option></select>
+          </div>
+          <div class="form-group full"><label>Observações</label><input type="text" id="l-obs" placeholder="Opcional"></div>
+        </div>
+        <div style="margin-top:1rem">
+          <button class="btn btn-primary" onclick="addLancamento()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar lançamento
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Registros</div>
+        <div class="table-wrap" id="lanc-table"></div>
+      </div>
+    </div>
+
+    <!-- ENTRADAS -->
+    <div class="page" id="page-entradas">
+      <div class="page-header">
+        <div class="page-title">Entradas</div>
+        <div class="page-sub">Controle de vendas e clientes</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Nova entrada</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Data</label><input type="date" id="e-data"></div>
+          <div class="form-group"><label>Cliente</label><input type="text" id="e-cliente" placeholder="Nome do cliente"></div>
+          <div class="form-group"><label>Novo cliente?</label>
+            <select id="e-novo"><option>Não</option><option>Sim</option></select>
+          </div>
+          <div class="form-group"><label>Qtd de peças</label><input type="number" id="e-qtd" placeholder="0" min="1"></div>
+          <div class="form-group"><label>Valor total (R$)</label><input type="number" id="e-valor" placeholder="0.00" step="0.01" min="0"></div>
+          <div class="form-group"><label>Forma de pagamento</label>
+            <select id="e-pgto"><option>Pix</option><option>Cartão Crédito</option><option>Cartão Débito</option><option>Dinheiro</option><option>Transferência</option><option>Boleto</option></select>
+          </div>
+          <div class="form-group full"><label>Observações</label><input type="text" id="e-obs" placeholder="Opcional"></div>
+        </div>
+        <div style="margin-top:1rem">
+          <button class="btn btn-primary" onclick="addEntrada()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar entrada
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Registros</div>
+        <div class="table-wrap" id="entr-table"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="page" id="page-config">
+      <div class="page-header">
+        <div class="page-title">Configurações</div>
+        <div class="page-sub">Personalize categorias e centros de custo</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Categorias de gastos</div>
+        <div class="tag-list" id="cat-list"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-cat" placeholder="Nova categoria..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13.5px;padding:9px 12px;font-family:'DM Sans',sans-serif;outline:none">
+          <button class="btn btn-ghost btn-sm" onclick="addCat()" style="padding:9px 14px">+ Adicionar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Centros de custo</div>
+        <div class="tag-list" id="cc-list"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-cc" placeholder="Novo centro de custo..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13.5px;padding:9px 12px;font-family:'DM Sans',sans-serif;outline:none">
+          <button class="btn btn-ghost btn-sm" onclick="addCC()" style="padding:9px 14px">+ Adicionar</button>
+        </div>
+      </div>
+      <div class="card danger-zone">
+        <div class="card-title" style="color:var(--red)">Zona de perigo</div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Apaga permanentemente todos os dados registrados.</p>
+        <button class="btn btn-danger btn-sm" onclick="clearAll()">Limpar todos os dados</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const KEY='gestao_fin_v2';
+
+function defaultData(){
+  return{
+    categorias:["Alimentação","Transporte","Material de Escritório","Marketing","TI / Software","Serviços Terceiros","Utilidades","Viagens","Treinamento","Outros"],
+    centros:["Administrativo","Comercial","Operacional","RH","TI","Financeiro","Diretoria"],
+    lancamentos:[
+      {id:1,data:"2025-05-13",desc:"Almoço equipe comercial",cat:"Alimentação",forn:"Restaurante Sabor",valor:187.50,pgto:"Cartão Crédito",status:"Pago",nf:"Sim",obs:""},
+      {id:2,data:"2025-05-13",desc:"Recarga combustível",cat:"Transporte",forn:"Posto Shell",valor:320.00,pgto:"Cartão Débito",status:"Pago",nf:"Sim",obs:""},
+      {id:3,data:"2025-05-12",desc:"Licença Adobe CC",cat:"TI / Software",forn:"Adobe Inc.",valor:299.90,pgto:"Boleto",status:"Pago",nf:"Sim",obs:"Anual"},
+      {id:4,data:"2025-05-12",desc:"Papel A4 e canetas",cat:"Material de Escritório",forn:"Papelaria Central",valor:95.40,pgto:"Pix",status:"Pago",nf:"Não",obs:""},
+      {id:5,data:"2025-05-11",desc:"Patrocínio evento",cat:"Marketing",forn:"Evento Tech SP",valor:2500.00,pgto:"Transferência",status:"Pendente",nf:"Não",obs:"Aguardando NF"},
+    ],
+    entradas:[
+      {id:1,data:"2025-05-13",cliente:"Loja do Zé Ltda",novo:"Não",qtd:10,valor:450.00,pgto:"Pix",obs:""},
+      {id:2,data:"2025-05-13",cliente:"Maria Moda",novo:"Sim",qtd:25,valor:962.50,pgto:"Cartão Crédito",obs:"Pagamento à vista"},
+      {id:3,data:"2025-05-12",cliente:"Boutique Elegância",novo:"Não",qtd:8,valor:576.00,pgto:"Transferência",obs:""},
+      {id:4,data:"2025-05-11",cliente:"Atacado Central",novo:"Não",qtd:100,valor:2200.00,pgto:"Pix",obs:"Desconto 5%"},
+    ]
+  };
+}
+
+let db;
+try{ db=JSON.parse(localStorage.getItem(KEY))||defaultData(); }catch(e){ db=defaultData(); }
+
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){} }
+function fmt(v){ return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(s){ if(!s)return''; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}`; }
+function esc(s){ return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('btn-'+page).classList.add('active');
+  render();
+}
+
+function render(){
+  renderDashboard();
+  renderLancamentos();
+  renderEntradas();
+  renderConfig();
+  const rec=db.entradas.reduce((s,e)=>s+Number(e.valor),0);
+  const desp=db.lancamentos.filter(l=>l.status!=='Cancelado').reduce((s,l)=>s+Number(l.valor),0);
+  const saldo=rec-desp;
+  const el=document.getElementById('sidebar-saldo');
+  el.textContent=fmt(saldo);
+  el.style.color=saldo>=0?'var(--green)':'var(--red)';
+}
+
+function renderDashboard(){
+  const rec=db.entradas.reduce((s,e)=>s+Number(e.valor),0);
+  const desp=db.lancamentos.filter(l=>l.status!=='Cancelado').reduce((s,l)=>s+Number(l.valor),0);
+  const saldo=rec-desp;
+  const novos=db.entradas.filter(e=>e.novo==='Sim').length;
+  const pecas=db.entradas.reduce((s,e)=>s+Number(e.qtd),0);
+  const pendente=db.lancamentos.filter(l=>l.status==='Pendente').reduce((s,l)=>s+Number(l.valor),0);
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi green"><div class="kpi-label">Receita</div><div class="kpi-value">${fmt(rec)}</div></div>
+    <div class="kpi red"><div class="kpi-label">Despesas</div><div class="kpi-value">${fmt(desp)}</div></div>
+    <div class="kpi ${saldo>=0?'green':'red'}"><div class="kpi-label">Saldo</div><div class="kpi-value">${fmt(saldo)}</div></div>
+    <div class="kpi amber"><div class="kpi-label">Pendente</div><div class="kpi-value">${fmt(pendente)}</div></div>
+    <div class="kpi purple"><div class="kpi-label">Novos clientes</div><div class="kpi-value">${novos}</div></div>
+    <div class="kpi blue"><div class="kpi-label">Peças vendidas</div><div class="kpi-value">${pecas.toLocaleString('pt-BR')}</div></div>
+  `;
+
+  const catT={};
+  db.lancamentos.forEach(l=>{if(l.status!=='Cancelado')catT[l.cat]=(catT[l.cat]||0)+Number(l.valor);});
+  const catS=Object.entries(catT).sort((a,b)=>b[1]-a[1]);
+  const maxC=catS[0]?catS[0][1]:1;
+  const colors=['#60a5fa','#a78bfa','#34d399','#fbbf24','#f87171','#f472b6','#38bdf8','#4ade80'];
+  document.getElementById('cat-chart').innerHTML=catS.length?catS.map(([cat,val],i)=>`
+    <div class="bar-row">
+      <div class="bar-meta"><span class="bar-label">${esc(cat)}</span><span class="bar-val">${fmt(val)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/maxC*100)}%;background:${colors[i%colors.length]}"></div></div>
+    </div>`).join(''):'<div class="empty">Nenhum lançamento ainda</div>';
+
+  const pgtoT={};
+  db.lancamentos.forEach(l=>{pgtoT[l.pgto]=(pgtoT[l.pgto]||0)+Number(l.valor);});
+  const pgtoS=Object.entries(pgtoT).sort((a,b)=>b[1]-a[1]);
+  const maxP=pgtoS[0]?pgtoS[0][1]:1;
+  document.getElementById('pgto-chart').innerHTML=pgtoS.length?pgtoS.map(([p,val],i)=>`
+    <div class="bar-row">
+      <div class="bar-meta"><span class="bar-label">${esc(p)}</span><span class="bar-val">${fmt(val)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/maxP*100)}%;background:${colors[(i+3)%colors.length]}"></div></div>
+    </div>`).join(''):'<div class="empty">Nenhum lançamento ainda</div>';
+
+  const nc=db.entradas.filter(e=>e.novo==='Sim');
+  document.getElementById('novos-clientes').innerHTML=nc.length?`
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${nc.map(e=>`<div class="cliente-card">
+        <div><div class="cliente-name">${esc(e.cliente)}</div><div class="cliente-meta">${fmtDate(e.data)} · ${e.qtd} peças · ${e.pgto}</div></div>
+        <div class="cliente-val">${fmt(e.valor)}</div>
+      </div>`).join('')}
+    </div>`:'<div class="empty">Nenhum novo cliente registrado</div>';
+}
+
+function statusBadge(s){
+  if(s==='Pago')return'badge-green';
+  if(s==='Pendente')return'badge-yellow';
+  if(s==='Cancelado')return'badge-red';
+  return'badge-blue';
+}
+
+function renderLancamentos(){
+  const sel=document.getElementById('l-cat');
+  if(sel){const cur=sel.value;sel.innerHTML=db.categorias.map(c=>`<option${c===cur?' selected':''}>${esc(c)}</option>`).join('');}
+  const rows=db.lancamentos.slice().reverse();
+  document.getElementById('lanc-table').innerHTML=rows.length?`
+    <table>
+      <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Pagto</th><th>Status</th><th></th></tr></thead>
+      <tbody>${rows.map(l=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">${fmtDate(l.data)}</td>
+        <td><div class="td-main">${esc(l.desc)}</div><div class="td-sub">${esc(l.forn||'')}</div></td>
+        <td><span style="font-size:12px;color:var(--text2)">${esc(l.cat)}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-weight:500">${fmt(l.valor)}</td>
+        <td style="font-size:12px;color:var(--text3)">${esc(l.pgto)}</td>
+        <td><span class="badge ${statusBadge(l.status)}">${l.status}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="delLanc(${l.id})" style="padding:5px 8px;color:var(--red);border-color:#4a1515">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button></td>
+      </tr>`).join('')}</tbody>
+    </table>`:'<div class="empty">Nenhum lançamento ainda.<br>Adicione o primeiro acima.</div>';
+}
+
+function renderEntradas(){
+  const rows=db.entradas.slice().reverse();
+  document.getElementById('entr-table').innerHTML=rows.length?`
+    <table>
+      <thead><tr><th>Data</th><th>Cliente</th><th>Novo?</th><th>Peças</th><th>Valor total</th><th>Pagto</th><th></th></tr></thead>
+      <tbody>${rows.map(e=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">${fmtDate(e.data)}</td>
+        <td class="td-main">${esc(e.cliente)}</td>
+        <td><span class="${e.novo==='Sim'?'novo-sim':'novo-nao'}">${e.novo}</span></td>
+        <td style="font-family:'DM Mono',monospace">${e.qtd}</td>
+        <td style="font-family:'DM Mono',monospace;font-weight:500;color:var(--green)">${fmt(e.valor)}</td>
+        <td style="font-size:12px;color:var(--text3)">${esc(e.pgto)}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="delEntr(${e.id})" style="padding:5px 8px;color:var(--red);border-color:#4a1515">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button></td>
+      </tr>`).join('')}</tbody>
+    </table>`:'<div class="empty">Nenhuma entrada ainda.<br>Adicione a primeira acima.</div>';
+}
+
+function renderConfig(){
+  document.getElementById('cat-list').innerHTML=db.categorias.map((c,i)=>`
+    <div class="tag">${esc(c)}<button class="tag-del" onclick="removeCat(${i})" title="Remover">×</button></div>`).join('');
+  document.getElementById('cc-list').innerHTML=db.centros.map((c,i)=>`
+    <div class="tag">${esc(c)}<button class="tag-del" onclick="removeCC(${i})" title="Remover">×</button></div>`).join('');
+}
+
+function addLancamento(){
+  const data=document.getElementById('l-data').value;
+  const desc=document.getElementById('l-desc').value.trim();
+  const valor=parseFloat(document.getElementById('l-valor').value);
+  if(!data||!desc||isNaN(valor)||valor<=0){alert('Preencha data, descrição e valor.');return;}
+  db.lancamentos.push({id:Date.now(),data,desc,cat:document.getElementById('l-cat').value,forn:document.getElementById('l-forn').value.trim()||'—',valor,pgto:document.getElementById('l-pgto').value,status:document.getElementById('l-status').value,nf:document.getElementById('l-nf').value,obs:document.getElementById('l-obs').value.trim()});
+  save();
+  ['l-desc','l-forn','l-valor','l-obs'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+function addEntrada(){
+  const data=document.getElementById('e-data').value;
+  const cliente=document.getElementById('e-cliente').value.trim();
+  const qtd=parseInt(document.getElementById('e-qtd').value);
+  const valor=parseFloat(document.getElementById('e-valor').value);
+  if(!data||!cliente||isNaN(qtd)||qtd<=0||isNaN(valor)||valor<=0){alert('Preencha todos os campos obrigatórios.');return;}
+  db.entradas.push({id:Date.now(),data,cliente,novo:document.getElementById('e-novo').value,qtd,valor,pgto:document.getElementById('e-pgto').value,obs:document.getElementById('e-obs').value.trim()});
+  save();
+  ['e-cliente','e-qtd','e-valor','e-obs'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+function delLanc(id){db.lancamentos=db.lancamentos.filter(l=>l.id!==id);save();render();}
+function delEntr(id){db.entradas=db.entradas.filter(e=>e.id!==id);save();render();}
+
+function addCat(){const v=document.getElementById('new-cat').value.trim();if(!v)return;db.categorias.push(v);document.getElementById('new-cat').value='';save();render();}
+function removeCat(i){db.categorias.splice(i,1);save();render();}
+function addCC(){const v=document.getElementById('new-cc').value.trim();if(!v)return;db.centros.push(v);document.getElementById('new-cc').value='';save();render();}
+function removeCC(i){db.centros.splice(i,1);save();render();}
+function clearAll(){if(confirm('Tem certeza? Isso vai apagar todos os dados.')){{localStorage.removeItem(KEY);db=defaultData();save();render();}}}
+
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('l-data').value=today;
+document.getElementById('e-data').value=today;
+render();
+</script>
+</body>
+</html>
